@@ -425,35 +425,34 @@ class CreateServer(command.ShowOne):
                                      'source_type': 'volume'
                                      'destination_type': 'volume'
                                      }
-        else:
-            for dev_map in parsed_args.block_device_mapping:
-                dev_name, dev_map = dev_map.split('=', 1)
-                if dev_map:
-                    dev_map = dev_map.split(':')
-                    if len(dev_map) > 0:
-                        block_device_mapping = {
-                            'device_name': dev_name,
-                            'uuid': dev_map[0]}
-                        if len(dev_map) > 1 and \
-                               dev_map[1] in ('volume', 'snapshot', 'image'):
-                            block_device_mapping['source_type'] = dev_map[1]
-                        else:
-                            block_device_mapping['uuid'] = utils.find_resource(
-                                volume_client.volumes,
-                                dev_map[0],
-                            ).id
-                            block_device_mapping['source_type'] = 'volume'
-                        block_device_mapping['destination_type'] = 'volume'
-                        if len(dev_map) > 2:
-                            block_device_mapping['volume_size'] = dev_map[2]
-                        if len(dev_map) > 3:
-                            block_device_mapping['delete_on_termination'] = dev_map[3]
-                        if len(dev_map) > 4:
-                            block_device_mapping['volume_type'] = dev_map[4]
+        for dev_map in parsed_args.block_device_mapping:
+            dev_name, dev_map = dev_map.split('=', 1)
+            if dev_map:
+                dev_map = dev_map.split(':')
+                if len(dev_map) > 0:
+                    block_device_mapping = {
+                        'device_name': dev_name,
+                        'uuid': dev_map[0]}
+                    if len(dev_map) > 1 and \
+                           dev_map[1] in ('volume', 'snapshot', 'image'):
+                        block_device_mapping['source_type'] = dev_map[1]
                     else:
-                        msg = _("Volume name or ID must be specified if "
-                                "--block-device-mapping is specified")
-                        raise exceptions.CommandError(msg)
+                        block_device_mapping['uuid'] = utils.find_resource(
+                            volume_client.volumes,
+                            dev_map[0],
+                        ).id
+                        block_device_mapping['source_type'] = 'volume'
+                    block_device_mapping['destination_type'] = 'volume'
+                    if len(dev_map) > 2:
+                        block_device_mapping['volume_size'] = dev_map[2]
+                    if len(dev_map) > 3:
+                        block_device_mapping['delete_on_termination'] = dev_map[3]
+                    if len(dev_map) > 4:
+                        block_device_mapping['volume_type'] = dev_map[4]
+                else:
+                    msg = _("Volume name or ID must be specified if "
+                            "--block-device-mapping is specified")
+                    raise exceptions.CommandError(msg)
 
         nics = []
         for nic_str in parsed_args.nic:
